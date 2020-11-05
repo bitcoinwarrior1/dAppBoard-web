@@ -1,0 +1,26 @@
+{
+  "name": "dapp-panel-web",
+  "version": "1.0.0",
+  "description": "https://github.com/James-Sangalli/dApp-panel-web.git",
+  "main": "index.js",
+  "scripts": {
+    "build": "watchify index.js -o bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/James-Sangalli/dApp-panel-web.git"
+  },
+  "author": "James Sangalli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/James-Sangalli/dApp-panel-web/issues"
+  },
+  "homepage": "https://github.com/James-Sangalli/dApp-panel-web#readme",
+  "dependencies": {
+    "ethers": "^5.0.9",
+    "superagent": "^6.1.0"
+  },
+  "devDependencies": {
+    "watchify": "^3.9.0"
+  }
+}

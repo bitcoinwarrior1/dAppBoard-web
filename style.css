@@ -1,3 +1,7 @@
+body {
+    word-wrap: break-word;
+}
+
 #titles
 {
     text-align: center;

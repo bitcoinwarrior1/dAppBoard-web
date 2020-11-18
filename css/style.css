@@ -1,0 +1,15 @@
+body {
+    word-wrap: break-word;
+}
+
+#titles {
+    text-align: center;
+}
+
+#results {
+    margin-left: 2%;
+}
+
+#loading {
+    text-align: center;
+}

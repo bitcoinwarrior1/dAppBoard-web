@@ -2,9 +2,9 @@
   "name": "dapp-panel-web",
   "version": "1.0.0",
   "description": "https://github.com/James-Sangalli/dApp-panel-web.git",
-  "main": "index.js",
+  "main": "js/index.js",
   "scripts": {
-    "build": "watchify index.js -o bundle.js"
+    "build": "watchify js/index.js -o bundle.js"
   },
   "repository": {
     "type": "git",

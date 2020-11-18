@@ -13,16 +13,37 @@ module.exports = {
 };
 
 },{}],2:[function(require,module,exports){
+function getEtherScanPage(chainId) {
+    switch (chainId) {
+        case 1:
+            return "https://etherscan.io/address/";
+        case 3:
+            return "https://ropsten.etherscan.io/address/";
+        case 4:
+            return "https://rinkeby.etherscan.io/address/";
+        case 42:
+            return "https://kovan.etherscan.io/address/";
+        default:
+            return "";
+    }
+}
+
+module.exports = { getEtherScanPage };
+
+},{}],3:[function(require,module,exports){
 const Ethers = require('ethers');
 const provider = new Ethers.providers.Web3Provider(web3.currentProvider);
 const { ERC20, ERC721 } = require("./ABI");
 const request = require("superagent");
 const serverQuery = "https://dApp-panel-api.herokuapp.com/ethereum-interactions"
 let account = "";
+const deploymentPrefix = "60606040";
+const { getEtherScanPage } = require("./helpers");
 
 $(() => {
 
     window.ethereum.enable().then((accounts) => {
+        $("#loading").show();
         account = accounts[0];
         const _ = init();
     }).catch(console.error);
@@ -31,17 +52,36 @@ $(() => {
         const network = await provider.getNetwork();
         const query = `${serverQuery}/${network}/${account}`;
         request.get(query).then((result) => {
-            $("#ethTransfers").text(result.body.mostEthTransfersTo);
-            $("#mostUsedContracts").text(result.body.mostUsedContracts);
-            $("#contractsYouCreated").text(result.body.contractsYouCreated);
-            $("#mostCalledFunctions").text(result.body.mostCalledFunctions);
+            render(result.body);
         }).catch(console.error);
+    }
+
+    function render(body) {
+        $("#loading").hide();
+        $("#information").show();
+        const chainId = provider._network.chainId;
+        body.mostEthTransfersTo.map((recipient) => {
+            $("#ethTransfers").append(`<a href="${getEtherScanPage(chainId) + recipient}">${recipient}</a><br>`);
+        });
+        body.mostUsedContracts.map((contract) => {
+            $("#mostUsedContracts").append(`<a href="${getEtherScanPage(chainId) + contract}">${contract}</a><br>`);
+        });
+        body.contractsYouCreated.map((contract) => {
+            $("#contractsYouCreated").append(`<a href="${getEtherScanPage(chainId) + contract}">${contract}</a><br>`);
+        });
+        body.mostCalledFunctions.map((func) => {
+            if(func.functionSignature === deploymentPrefix) {
+                $("#mostCommonlyCalledFunctions").append(`<a href="${getEtherScanPage(chainId) + func.contractAddress}"><strong>contract creation</strong> ${func.contractAddress}</a><br>`);
+            } else {
+                $("#mostCommonlyCalledFunctions").append(`<a href="${getEtherScanPage(chainId) + func.to}"><strong>${func.functionSignature}</strong> at ${func.to}</a><br>`);
+            }
+        });
     }
 
 });
 
 
-},{"./ABI":1,"ethers":5,"superagent":13}],3:[function(require,module,exports){
+},{"./ABI":1,"./helpers":2,"ethers":6,"superagent":14}],4:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -227,7 +267,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -404,7 +444,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (process,global,setImmediate){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -27254,7 +27294,7 @@ Emitter.prototype.hasListeners = function(event){
 }));
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"_process":3,"timers":18}],6:[function(require,module,exports){
+},{"_process":4,"timers":19}],7:[function(require,module,exports){
 module.exports = stringify
 stringify.default = stringify
 stringify.stable = deterministicStringify
@@ -27417,7 +27457,7 @@ function replaceGetterValues (replacer) {
   }
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var replace = String.prototype.replace;
@@ -27445,7 +27485,7 @@ module.exports = util.assign(
     Format
 );
 
-},{"./utils":11}],8:[function(require,module,exports){
+},{"./utils":12}],9:[function(require,module,exports){
 'use strict';
 
 var stringify = require('./stringify');
@@ -27458,7 +27498,7 @@ module.exports = {
     stringify: stringify
 };
 
-},{"./formats":7,"./parse":9,"./stringify":10}],9:[function(require,module,exports){
+},{"./formats":8,"./parse":10,"./stringify":11}],10:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -27717,7 +27757,7 @@ module.exports = function (str, opts) {
     return utils.compact(obj);
 };
 
-},{"./utils":11}],10:[function(require,module,exports){
+},{"./utils":12}],11:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -27990,7 +28030,7 @@ module.exports = function (object, opts) {
     return joined.length > 0 ? prefix + joined : '';
 };
 
-},{"./formats":7,"./utils":11}],11:[function(require,module,exports){
+},{"./formats":8,"./utils":12}],12:[function(require,module,exports){
 'use strict';
 
 var has = Object.prototype.hasOwnProperty;
@@ -28240,7 +28280,7 @@ module.exports = {
     merge: merge
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -28283,7 +28323,7 @@ Agent.prototype._setDefaults = function (req) {
 
 module.exports = Agent;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -29306,7 +29346,7 @@ request.put = function (url, data, fn) {
   return req;
 };
 
-},{"./agent-base":12,"./is-object":14,"./request-base":15,"./response-base":16,"component-emitter":4,"fast-safe-stringify":6,"qs":8}],14:[function(require,module,exports){
+},{"./agent-base":13,"./is-object":15,"./request-base":16,"./response-base":17,"component-emitter":5,"fast-safe-stringify":7,"qs":9}],15:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -29324,7 +29364,7 @@ function isObject(obj) {
 
 module.exports = isObject;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -30107,7 +30147,7 @@ RequestBase.prototype._setTimeouts = function () {
   }
 };
 
-},{"./is-object":14}],16:[function(require,module,exports){
+},{"./is-object":15}],17:[function(require,module,exports){
 "use strict";
 
 /**
@@ -30239,7 +30279,7 @@ ResponseBase.prototype._setStatusProperties = function (status) {
   this.unprocessableEntity = status === 422;
 };
 
-},{"./utils":17}],17:[function(require,module,exports){
+},{"./utils":18}],18:[function(require,module,exports){
 "use strict";
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
@@ -30345,7 +30385,7 @@ exports.cleanHeader = function (header, changesOrigin) {
   return header;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -30424,6 +30464,6 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":19,"timers":18}],19:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}]},{},[2]);
+},{"process/browser.js":20,"timers":19}],20:[function(require,module,exports){
+arguments[4][4][0].apply(exports,arguments)
+},{"dup":4}]},{},[3]);

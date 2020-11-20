@@ -45,14 +45,15 @@ $(() => {
     window.ethereum.enable().then((accounts) => {
         $("#loading").show();
         account = accounts[0];
-        const _ = init();
+        init();
     }).catch(console.error);
 
-    async function init() {
-        const network = await provider.getNetwork();
-        const query = `${serverQuery}/${network}/${account}`;
-        request.get(query).then((result) => {
-            render(result.body);
+    function init() {
+        provider.getNetwork().then((network) => {
+            const query = `${serverQuery}/${network.name}/${account}`;
+            request.get(query).then((result) => {
+                render(result.body);
+            }).catch(console.error);
         }).catch(console.error);
     }
 

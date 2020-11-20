@@ -39,9 +39,9 @@ $(() => {
         });
         body.mostCalledFunctions.map((func) => {
             if(func.functionSignature === deploymentPrefix) {
-                $("#mostCommonlyCalledFunctions").append(`<a href="${getEtherScanPage(chainId) + func.contractAddress}"><strong>contract creation</strong> ${func.contractAddress}</a><br>`);
+                $("#mostCommonlyCalledFunctions").append(`<strong>contract creation</strong> <a href="${getEtherScanPage(chainId) + func.contractAddress}"> ${func.contractAddress}</a><br>`);
             } else {
-                $("#mostCommonlyCalledFunctions").append(`<a href="${getEtherScanPage(chainId) + func.to}"><strong>${func.functionSignature}</strong> at ${func.to}</a><br>`);
+                $("#mostCommonlyCalledFunctions").append(`<strong>${func.functionSignature}</strong> at <a href="${getEtherScanPage(chainId) + func.to}">${func.to}</a><br>`);
             }
         });
     }

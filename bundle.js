@@ -13,32 +13,36 @@ module.exports = {
 };
 
 },{}],2:[function(require,module,exports){
-function getEtherScanPage(chainId) {
+function getEtherscanAddressPage(chainId, address) {
     switch (chainId) {
         case 1:
-            return "https://etherscan.io/address/";
+            return `https://etherscan.io/address/${address}`;
         case 3:
-            return "https://ropsten.etherscan.io/address/";
+            return `https://ropsten.etherscan.io/address/${address}`;
         case 4:
-            return "https://rinkeby.etherscan.io/address/";
+            return `https://rinkeby.etherscan.io/address/${address}`;
         case 42:
-            return "https://kovan.etherscan.io/address/";
+            return `https://kovan.etherscan.io/address/${address}`;
         default:
             return "";
     }
 }
 
-module.exports = { getEtherScanPage };
+function getEtherScanContractPage(chainId, address) {
+    return getEtherscanAddressPage(chainId, address) + "#code";
+}
+
+module.exports = { getEtherscanAddressPage, getEtherScanContractPage };
 
 },{}],3:[function(require,module,exports){
 const Ethers = require('ethers');
 const provider = new Ethers.providers.Web3Provider(web3.currentProvider);
 const { ERC20, ERC721 } = require("./ABI");
 const request = require("superagent");
-const serverQuery = "https://dApp-panel-api.herokuapp.com/ethereum-interactions"
+const serverQuery = "https://dApp-panel-api.herokuapp.com/ethereum-interactions";
 let account = "";
 const deploymentPrefix = "60606040";
-const { getEtherScanPage } = require("./helpers");
+const { getEtherscanAddressPage, getEtherScanContractPage } = require("./helpers");
 
 $(() => {
 
@@ -62,19 +66,19 @@ $(() => {
         $("#information").show();
         const chainId = provider._network.chainId;
         body.mostEthTransfersTo.map((recipient) => {
-            $("#ethTransfers").append(`<a href="${getEtherScanPage(chainId) + recipient}">${recipient}</a><br>`);
+            $("#ethTransfers").append(`<a href="${getEtherscanAddressPage(chainId, recipient)}">${recipient}</a><br>`);
         });
         body.mostUsedContracts.map((contract) => {
-            $("#mostUsedContracts").append(`<a href="${getEtherScanPage(chainId) + contract}">${contract}</a><br>`);
+            $("#mostUsedContracts").append(`<a href="${getEtherscanAddressPage(chainId, contract)}">${contract}</a><br>`);
         });
         body.contractsYouCreated.map((contract) => {
-            $("#contractsYouCreated").append(`<a href="${getEtherScanPage(chainId) + contract}">${contract}</a><br>`);
+            $("#contractsYouCreated").append(`<a href="${getEtherscanAddressPage(chainId, contract)}">${contract}</a><br>`);
         });
         body.mostCalledFunctions.map((func) => {
             if(func.functionSignature === deploymentPrefix) {
-                $("#mostCommonlyCalledFunctions").append(`<strong>contract creation</strong> <a href="${getEtherScanPage(chainId) + func.contractAddress}"> ${func.contractAddress}</a><br>`);
+                $("#mostCommonlyCalledFunctions").append(`<strong>contract creation</strong> <a href="${getEtherscanAddressPage(chainId, func.contractAddress)}"> ${func.contractAddress}</a><br>`);
             } else {
-                $("#mostCommonlyCalledFunctions").append(`<strong>${func.functionSignature}</strong> at <a href="${getEtherScanPage(chainId) + func.to}">${func.to}</a><br>`);
+                $("#mostCommonlyCalledFunctions").append(`<strong>${func.functionSignature}</strong> at <a href="${getEtherScanContractPage(chainId, func.to)}">${func.to}</a><br>`);
             }
         });
     }
